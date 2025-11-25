@@ -18,9 +18,11 @@ void delay(int m){
         }
     }
 }
+
 void Countdown_timer(void){
     //COUNTDOWN TIMER
     count=0;
+    int k;
     int status=0;
     SYSCTL_RCGCTIMER_R |= (1 << 0);
     TIMER0_CTL_R = 0X00;
@@ -28,7 +30,6 @@ void Countdown_timer(void){
     TIMER0_TAMR_R = 0X02;//PERIODIC MODE
     TIMER0_TAILR_R =0;//0x1C9C380;//0X3938700;//60,000,000 IN DECIMAL
     TIMER0_IMR_R = 0x01;//SETTING INTERRUPTS
-    //color_led(green,255,16);
     color_led(white,100,16);
 
     while(1){
@@ -37,13 +38,14 @@ void Countdown_timer(void){
             color_led(green,255,16);
             status=0;
             count=0;
+            k=TIMER0_TAILR_R;
             break;
         }
 
         if (((GPIO_PORTF_DATA_R & 0X10) ==0) & (status==0)){
             count++;
             if(count<17){
-                TIMER0_TAILR_R +=0x1C9C38;
+                TIMER0_TAILR_R +=0xE4E1C0;
                 color_led(white,255,count);
             }
             status=1;
@@ -68,6 +70,7 @@ void Countdown_timer(void){
 
             //blink particular led
 
+
         }
         if(((GPIO_PORTF_DATA_R & 0X10) ==0) & (status==0)){
             TIMER0_CTL_R |=0x01;//ENABLING TIMER
@@ -75,18 +78,19 @@ void Countdown_timer(void){
             delay(30);
         }
 
-        else if(((GPIO_PORTF_DATA_R & 0X10) ==0) & (status==1)){
+        if(((GPIO_PORTF_DATA_R & 0X10) ==0) & (status==1)){
             TIMER0_CTL_R &=~(0x01);//PAUSE TIMER
             status=0;
             delay(30);
         }
-        else if ((status==1) & ((TIMER0_CTL_R & 0x01)==0X00)){
+
+        if ((status==1) & ((TIMER0_CTL_R & 0x01)==0X00)){
             break;
         }
 
-        /*else if(((GPIO_PORTF_DATA_R & 0X01) ==0) & (status=0)){
+        if(((GPIO_PORTF_DATA_R & 0X01) ==0) & (status==0)){
             delay(40);
-            if(((GPIO_PORTF_DATA_R & 0X01) ==0) & (status=0)){
+            if(((GPIO_PORTF_DATA_R & 0X01) ==0) & (status==0)){
                 TIMER0_CTL_R  &=~(0x01);
                 count=0;
                 delay(30);
@@ -95,13 +99,16 @@ void Countdown_timer(void){
 
             else{
                 //reset timer
+                TIMER0_CTL_R  &=~(0x01);
+                TIMER0_TAILR_R=0;
+                TIMER0_TAILR_R=k;
+                color_led(green,255,16);
+                count=0;
+                step=0;
             }
-        }*/
+        }
     }
 }
-
-
-
 
 void main(){
 
