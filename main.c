@@ -19,6 +19,7 @@ void delay(int m){
     }
 }
 
+
 void Countdown_timer(void){
     //COUNTDOWN TIMER
     count=0;
@@ -28,11 +29,14 @@ void Countdown_timer(void){
     TIMER0_CTL_R = 0X00;
     TIMER0_CFG_R = 0X00;//32 BIT TIMER
     TIMER0_TAMR_R = 0X02;//PERIODIC MODE
-    TIMER0_TAILR_R =0;//0x1C9C380;//0X3938700;//60,000,000 IN DECIMAL
+    TIMER0_TAILR_R =0;
     TIMER0_IMR_R = 0x01;//SETTING INTERRUPTS
     color_led(white,100,16);
 
     while(1){
+
+        //INITIALIZING THE TIMER
+        //just small press
         if(((GPIO_PORTF_DATA_R & 0X01) ==0) & (status==0)){
             delay(30);
             color_led(green,255,16);
@@ -42,11 +46,24 @@ void Countdown_timer(void){
             break;
         }
 
+        //SETTING TIMER VALUE
+        //Increasing-one press
+        //Decreasing-long press
         if (((GPIO_PORTF_DATA_R & 0X10) ==0) & (status==0)){
-            count++;
-            if(count<17){
-                TIMER0_TAILR_R +=0xE4E1C0;
-                color_led(white,255,count);
+            delay(50);
+            if (((GPIO_PORTF_DATA_R & 0X10) ==0) & (status==0)){
+                if(count>0){
+                    count--;
+                    TIMER0_TAILR_R -=0xE4E1C0;
+                    color_led(white,255,count);
+                }
+            }
+            else{
+                if(count<17){
+                    count++;
+                    TIMER0_TAILR_R +=0xE4E1C0;
+                    color_led(white,255,count);
+                }
             }
             status=1;
             delay(30);
@@ -55,50 +72,47 @@ void Countdown_timer(void){
         else if (((GPIO_PORTF_DATA_R & 0X10) ==0X10) & (status==1)){
             status=0;
         }
+
+        //EXIT
     }
 
     while(1){
-        if(((GPIO_PORTF_DATA_R & 0X01) ==0) & (status==1)){
-            delay(40);
-            /*if(((GPIO_PORTF_DATA_R & 0X01) ==0)){
-                //end
-                TIMER0_CTL_R  &=~(0x01);
-                count=0;
-                delay(30);
-                break;
-            }*/
 
-            //blink particular led
-
-
-        }
+        //ENABLING TIMER
+        //just one press
         if(((GPIO_PORTF_DATA_R & 0X10) ==0) & (status==0)){
             TIMER0_CTL_R |=0x01;//ENABLING TIMER
             status=1;
             delay(30);
         }
 
+        //DISABLING TIMER
+        //just one press
         if(((GPIO_PORTF_DATA_R & 0X10) ==0) & (status==1)){
             TIMER0_CTL_R &=~(0x01);//PAUSE TIMER
             status=0;
             delay(30);
         }
 
-        if ((status==1) & ((TIMER0_CTL_R & 0x01)==0X00)){
-            break;
-        }
-
+        //RESETTING TIMER
+        //reset same timer-one press
+        //exit timer-long press
         if(((GPIO_PORTF_DATA_R & 0X01) ==0) & (status==0)){
             delay(40);
             if(((GPIO_PORTF_DATA_R & 0X01) ==0) & (status==0)){
                 TIMER0_CTL_R  &=~(0x01);
                 count=0;
-                delay(30);
+                color_led(red,255,16);
+                delay(50);
+                color_led(red,255,0);
+                delay(50);
+                color_led(red,255,16);
+                delay(50);
+                color_led(red,255,0);
                 break;
             }
 
             else{
-                //reset timer
                 TIMER0_CTL_R  &=~(0x01);
                 TIMER0_TAILR_R=0;
                 TIMER0_TAILR_R=k;
@@ -106,6 +120,11 @@ void Countdown_timer(void){
                 count=0;
                 step=0;
             }
+        }
+
+        //TIMER ENDS THIS IS EXECUTED
+        if ((status==1) & ((TIMER0_CTL_R & 0x01)==0X00)){
+            break;
         }
     }
 }
@@ -122,7 +141,6 @@ void main(){
     GPIO_PORTF_DATA_R = 0x00;            // LED OFF
 
     NVIC_EN0_R |= (1 << 19);
-    NVIC_EN0_R |= (1 << 21);
 
     int status=0;
     //RING LED
