@@ -111,6 +111,7 @@ void Countdown_timer(void){
         //just one press
         if(((GPIO_PORTF_DATA_R & 0X10) ==0) & (status==0)){
             TIMER0_CTL_R |=0x01;//ENABLING TIMER
+            en=1;
             status=1;
             delay(30);
         }
@@ -119,6 +120,17 @@ void Countdown_timer(void){
         //just one press
         if(((GPIO_PORTF_DATA_R & 0X10) ==0) & (status==1)){
             TIMER0_CTL_R &=~(0x01);//PAUSE TIMER
+            en=0;
+            if(count<8){
+                color_led(green,255-step,15-count);
+            }
+            else if(count<12){
+                color_led(yellow,255-step,15-count);
+            }
+            else if(count<15){
+                //NEED TO TURN ON RED
+                color_led(red,255-step,15-count);
+            }
             status=0;
             delay(30);
         }
