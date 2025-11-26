@@ -502,11 +502,11 @@ static void Timer0(void){
         en_1=0;
         TIMER0_CTL_R &=~(0x01);
         //NEED TO BEEP
-        while(count<4){
+        while(count<3){
+            delay(50);
             color_led(red,255,16);
             delay(50);
             color_led(red,255,0);
-            delay(50);
             count++;
         }
         count=0;

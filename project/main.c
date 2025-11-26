@@ -95,12 +95,12 @@ void Countdown_timer(void){
             if(count<8){
                 color_led(green,255-step,16-count);
             }
-            /*else if(count<12){
+            else if(count<12){
                 color_led(yellow,255-step,16-count);
             }
             else{
                 color_led(red,255-step,16-count);
-            }*/
+            }
             TIMER0_CTL_R |=0x01;//ENABLING TIMER
             status=1;
             delay(30);
