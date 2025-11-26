@@ -9,7 +9,7 @@
 #define yellow 4
 #define white 5
 
-
+//delay
 void delay(int m){
     int i,j;
     for(i=0;i<m;i++){
