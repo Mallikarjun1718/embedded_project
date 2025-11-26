@@ -38,48 +38,34 @@ void Countdown_timer(void){
         if(((GPIO_PORTF_DATA_R & 0X01) ==0) & (status==0)){
             delay(30);
             en_1=1;
-            color_led(green,255,16);
             status=0;
             count=0;
-            k=TIMER0_TAILR_R;
             break;
-        }
 
         //SETTING TIMER VALUE
-        //Increasing-one press
-        //Decreasing-long press
-        if (((GPIO_PORTF_DATA_R & 0X10) ==0) & (status==0)){
             delay(50);
-            if (((GPIO_PORTF_DATA_R & 0X10) ==0) & (status==0)){
                 if(count>=0){
                     count--;
-                    TIMER0_TAILR_R -=0xF42400;
-                    color_led(white,20,count);
                 }
             }
-            else{
                 if(count<17){
-                    count++;
                     TIMER0_TAILR_R +=0xF42400;
-                    color_led(white,20,count);
-                }
+                    color_led(white,50,count);
             }
             status=1;
             delay(30);
         }
 
-        else if (((GPIO_PORTF_DATA_R & 0X10) ==0X10) & (status==1)){
             status=0;
         }
 
-        //EXIT
     }
 
     while(1){
         //ENABLING TIMER
         //just one press
         if(((GPIO_PORTF_DATA_R & 0X10) ==0) & (status==0)){
-            if(TIMER0_TAILR_R==0){
+
                 en_1=0;
                 color_led(red,255,16);
                 delay(50);
@@ -90,8 +76,16 @@ void Countdown_timer(void){
                 color_led(red,255,0);
                 break;
             }
-            TIMER0_CTL_R |=0x01;//ENABLING TIMER
             en=1;
+                color_led(green,255-step,16-count);
+            }
+            else if(count<12){
+                color_led(yellow,255-step,16-count);
+            }
+            else{
+                color_led(red,255-step,16-count);
+            }
+            TIMER0_CTL_R |=0x01;//ENABLING TIMER
             status=1;
             delay(30);
         }
@@ -126,30 +120,47 @@ void Countdown_timer(void){
                 count=0;
                 color_led(red,255,16);
                 delay(50);
+            if(count<8){
+            if(TIMER0_TAILR_R==0){
                 color_led(red,255,0);
                 delay(50);
                 color_led(red,255,16);
                 delay(50);
+        //EXIT
                 color_led(red,255,0);
                 break;
+        else if (((GPIO_PORTF_DATA_R & 0X10) ==0X10) & (status==1)){
             }
 
+                }
             else{
                 TIMER0_CTL_R  &=~(0x01);
+                    count++;
+            else{
                 TIMER0_TAILR_R=0;
+                    color_led(white,50,count);
                 TIMER0_TAILR_R=k;
                 color_led(green,255,16);
+                    TIMER0_TAILR_R -=0xF42400;
                 count=0;
                 step=0;
+            if (((GPIO_PORTF_DATA_R & 0X10) ==0) & (status==0)){
             }
+        if (((GPIO_PORTF_DATA_R & 0X10) ==0) & (status==0)){
         }
+        //Decreasing-long press
 
+        //Increasing-one press
         //TIMER ENDS THIS IS EXECUTED
         if ((status==1) & ((TIMER0_CTL_R & 0x01)==0X00)){
+        }
             break;
+            k=TIMER0_TAILR_R;
         }
     }
+
 }
+
 
 
 
@@ -157,9 +168,11 @@ void Countdown_timer(void){
 void main(){
 
     //PORT F CONFIGURATION
+
     SYSCTL_RCGC2_R   |= 0x00000020;      // ENABLE CLOCK TO GPIOF
     GPIO_PORTF_LOCK_R = 0x4C4F434B;      // UNLOCK COMMIT REGISTER
     GPIO_PORTF_CR_R   = 0x1F;            // MAKE PORTF0 CONFIGURABLE
+
     GPIO_PORTF_DEN_R  = 0x1F;            // SET PORTF PINS 4 PIN
     GPIO_PORTF_DIR_R  = 0x0E;            // SET PORTF4 PIN AS INPUT USER SWITCH PIN
     GPIO_PORTF_PUR_R  = 0x11;            // PORTF4 IS PULLED UP
@@ -171,11 +184,13 @@ void main(){
     color_led(green,255,0);
     //RING LED
 
+
     while(1){
         if((GPIO_PORTF_DATA_R & 0X10) ==0  & (status==0)){
             delay(30);
             status=1;
             Countdown_timer();
+
             status=0;
             color_led(green,255,0);
             GPIO_PORTF_DATA_R=0X00;
@@ -183,5 +198,6 @@ void main(){
         }
     }
 }
+
 
 
