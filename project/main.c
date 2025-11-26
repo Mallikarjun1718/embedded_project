@@ -128,13 +128,19 @@ void Countdown_timer(void){
         //RESETTING TIMER
         //reset same timer-one press
         //exit timer-long press
+        if(((GPIO_PORTF_DATA_R & 0X01) ==0) & (status==0)){
+            delay(40);
+            if(((GPIO_PORTF_DATA_R & 0X01) ==0) & (status==0)){
+                en_1=0;
                 TIMER0_CTL_R  &=~(0x01);
                 count=0;
                 color_led(red,255,16);
+                delay(50);
                 color_led(red,255,0);
                 delay(50);
                 color_led(red,255,16);
                 delay(50);
+                color_led(red,255,0);
                 break;
             }
 
@@ -142,6 +148,7 @@ void Countdown_timer(void){
                 TIMER0_CTL_R  &=~(0x01);
                 TIMER0_TAILR_R=0;
                 TIMER0_TAILR_R=k;
+                color_led(green,255,16);
                 count=0;
                 step=0;
             }
@@ -149,6 +156,7 @@ void Countdown_timer(void){
 
         //TIMER ENDS THIS IS EXECUTED
         if ((status==1) & ((TIMER0_CTL_R & 0x01)==0X00)){
+            break;
         }
     }
 }
@@ -187,4 +195,3 @@ void main(){
 }
 
 
-     

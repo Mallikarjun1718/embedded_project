@@ -246,15 +246,20 @@ void (* const g_pfnVectors[])(void) =
 void
 ResetISR(void)
 {
+    //
+    // Jump to the CCS C initialization routine.  This will enable the
     // floating-point unit as well, so that does not need to be done here.
     //
+    __asm("    .global _c_int00\n"
           "    b.w     _c_int00");
 }
+
 //*****************************************************************************
 //
 // This is the code that gets called when the processor receives a NMI.  This
 // simply enters an infinite loop, preserving the system state for examination
 // by a debugger.
+//
 //*****************************************************************************
 static void
 NmiSR(void)
@@ -267,10 +272,12 @@ NmiSR(void)
     }
 }
 
+//*****************************************************************************
 //
 // This is the code that gets called when the processor receives a fault
 // interrupt.  This simply enters an infinite loop, preserving the system state
 // for examination by a debugger.
+//
 //*****************************************************************************
 static void
 FaultISR(void)
@@ -280,6 +287,7 @@ FaultISR(void)
     //
     while(1)
     {
+    }
 }
 
 //*****************************************************************************
@@ -294,6 +302,7 @@ IntDefaultHandler(void)
 {
     //
     // Go into an infinite loop.
+    //
     while(1)
     {
     }
@@ -304,6 +313,7 @@ void send_data_one(void){
     GPIO_PORTF_DATA_R=0X02;
     int j=12;
     while(j>0){
+        j--;
         //do nothing
     }
     GPIO_PORTF_DATA_R=0X00;
@@ -324,6 +334,7 @@ void send_data_zero(void){
     }
 }
 
+void color_led(int colour,uint8_t value,int num){
     int i,j=0,store,rem,track=0;
     store=value;
     if(en_1==1){
@@ -338,6 +349,7 @@ void send_data_zero(void){
             }
         }
     }
+    if(colour==green){
         for( ;j<num;j++){
             value=store;
             track=0;
@@ -457,7 +469,6 @@ void send_data_zero(void){
 
     for(;j<16;j++){
         for(i=0;i<24;i++){
-    if(colour==green){
             send_data_zero();
         }
     }
@@ -471,7 +482,6 @@ static void Timer0(void){
     count++;
     step=step+15;
 
-void color_led(int colour,uint8_t value,int num){
     if(step>255){
         step=255;
     }
@@ -503,5 +513,3 @@ void color_led(int colour,uint8_t value,int num){
     }
     TIMER0_ICR_R = 0x01;
 }
-
-
